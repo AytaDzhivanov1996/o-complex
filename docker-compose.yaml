@@ -1,0 +1,32 @@
+services:
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=$POSTGRES_DB
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    healthcheck:
+      test: [ "CMD-SHELL","pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data 
+
+  api:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=$SECRET_KEY
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db:
+    driver: local

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Weather App</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <input type="text" id="city" name="city" placeholder="Enter city name" autocomplete="off">
+        <button type="submit">Get Weather</button>
+    </form>
+    <div id="suggestions"></div>
+    {% if weather %}
+        <h2>Weather for {{ city }}</h2>
+        <ul>
+            {% for key, value in weather.items %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <script>
+        $(document).ready(function() {
+            $('#city').on('input', function() {
+                var query = $(this).val();
+                if (query.length > 2) {
+                    $.get('/autocomplete/', { q: query }, function(data) {
+                        var suggestions = '';
+                        for (var i = 0; i < data.length; i++) {
+                            suggestions += '<p>' + data[i] + '</p>';
+                        }
+                        $('#suggestions').html(suggestions);
+                    });
+                } else {
+                    $('#suggestions').html('');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
